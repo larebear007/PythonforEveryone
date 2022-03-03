@@ -1,3 +1,5 @@
+# REGULAR EXPRESSIONS
+
 # 11.2 - Write a program to look for lines of the form: New Revision: 39772
 # Extract the number from each of the lines using a regular expression
 # and the findall() method. Compute the average of the numbers and print out the average as an integer.
@@ -8,11 +10,13 @@ handle = open(name)
 nums = list()
 for line in handle:
     x = re.findall('New Revision: ([0-9]+)', line)
-    fx = float(x[0])
-    nums.append(fx)
-print(sum(nums)/len(nums))
+    if len(x) > 0:
+        # used list comprehension below rather than a normal loop
+        x = [int(i) for i in x]
+        nums.append(x[0])
+print(int(sum(nums)/len(nums)))
 
-# test comment
+quit()
 
 # 11.1- Write a simple program to simulate the operation of the
 # grep command on Unix. Ask the user to enter a regular expression and
@@ -22,11 +26,9 @@ import re
 name = input('Enter file: ')
 handle = open(name)
 rx = input('Enter a regular expression to search for: ')
-rx1 = '\'' + rx + '\''
-print(rx1)
 count = 0
 for line in handle:
-    if re.search(rx1, line):
+    if re.search(rx, line):
         count = count + 1
 print('The file', name,'has', count,'lines that match', rx)
 

@@ -5,28 +5,24 @@
 # that recv receives characters (newlines and all), not lines.
 import socket
 try:
-    url = input('Enter url (*with http:// please!): ')
+    # http://data.pr4e.org/romeo.txt  http://data.pr4e.org/mbox-short.txt  http://data.pr4e.org/words.txt
+    url = input('Enter url: ')
     urlparts = url.split('/')
-    # print(urlparts)
     host = urlparts[2]
-    mysock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    mysock.connect((host, 80))
-    cmd = ('GET ' + url + ' HTTP/1.0\r\n\r\n').encode()
-    mysock.send(cmd)
-    header = mysock.recv(650)
-    header.decode()
-    hend = header.find('\n\n')
-    print(hend)
-    # while True:
-    #     data = mysock.recv(10000)
-
-
-
-    mysock.close()
+    hellosock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    hellosock.connect((host, 80))
+    command = ('GET ' + url + ' HTTP/1.0\r\n\r\n').encode()
+    hellosock.send(command)
+    while True:
+        x = hellosock.recv(1000)
+        if len(x) < 1: break
+        headendpos = x.decode().find('\r\n\r\n')
+        # print(x.decode())
+        print(x[headendpos + 4:].decode())
+        # print('End of header position:', headendpos)
 except:
     print('Invalid url or url could not be parsed:', url)
 quit()
-# http://data.pr4e.org/romeo.txt   http://data.pr4e.org/mbox.txt
 
 
 # 12.4 - Change the urllinks.py program to extract and count paragraph (p) tags from the retrieved
@@ -37,24 +33,21 @@ import urllib.request, urllib.parse, urllib.error
 import bs4
 from bs4 import BeautifulSoup
 import ssl
-
 # ignore ssl cert errors
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
-
 url = input('Enter url: ')
 html = urllib.request.urlopen(url, context=ctx).read()
 soup = BeautifulSoup(html, 'html.parser')
-
-    #retrieve all of the anchor tags
+# retrieve all the '>p' paragraph tags
 tags = soup('p')
 count = 0
 for tag in tags:
-    count = count + 1
+    count += 1
 print('Number of paragraphs:', count)
-
 quit()
+# http://data.pr4e.org    https://docs.python.org/3/library/codecs.html
 
 
 # 12.3 -Use urllib to replicate the previous exercise of (1) retrieving the document from a URL,
@@ -62,34 +55,26 @@ quit()
 # Don’t worry about the headers for this exercise, simply show the first 3000 characters of the document
 # contents.
 
-# HAVING DIFFICULTIES WITH THIS ONE -> while loop will break after one iteration
 import urllib.request, urllib.parse, urllib.error
-import ssl
 try:
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-
+    # http://data.pr4e.org/mbox-short.txt
     url = input('Enter url: ')
-    data = urllib.request.urlopen(url, context=ctx)
-    print('*url found and opened')
-    loop = 0
+    urlhand = urllib.request.urlopen(url)
+    print(urlhand)
     count = 0
+    loop = 0
     while True:
-        data = data.read(3000)
-        if len(data) < 1: break
+        data = urlhand.read(1000)
         loop += 1
-        count = count + len(data)
-        print('Current characters received:', count)
-        if loop <= 3:
-            print('Data received:')
-            print(data.decode())
-    print('Total characters in url:', count)
-    data.close()
+        count += len(data)
+        if len(data) < 1: break
+        if loop > 3: continue
+        print('Data received:\n', data.decode().strip())
+        print('Current characters received:', count, '\n')
+    print('Total character count:', count)
 except:
     print('Invalid url or url could not be parsed:', url)
 quit()
-# # http://data.pr4e.org/romeo.txt   http://data.pr4e.org/mbox.txt
 
 
 # 12.2 -Change your socket program so that it counts the number of characters it has received and stops
@@ -122,10 +107,7 @@ try:
     mysock.close()
 except:
     print('Invalid url - Could not locate:', url)
-
 quit()
-
-
 
 
 # 12.1 -Change the socket program socket1.py to prompt the user for the URL so it can read any web page.
@@ -151,26 +133,26 @@ try:
     mysock.close()
 except:
     print('Invalid url - Could not locate:', url)
-
 quit()
 
 
+
+
+
 # Using BeautifulSoup - robust html parsing library
+
 import urllib.request, urllib.parse, urllib.error
 import bs4
 from bs4 import BeautifulSoup
 import ssl
-
 # ignore ssl cert errors
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
-
 url = input('Enter url: ')
 html = urllib.request.urlopen(url, context=ctx).read()
 soup = BeautifulSoup(html, 'html.parser')
-
-    #retrieve all of the anchor tags
+#retrieve all of the anchor tags
 tags = soup('a')
 for tag in tags:
     print(tag.get('href', None))
@@ -180,6 +162,26 @@ for tag in tags:
     # print('Contents:', tag.contents[0])
     # print('Attrs:', tag.attrs)
 quit()
+
+
+
+# simplified version of 'a' tag parser
+import urllib.request, urllib.parse, urllib.error
+from bs4 import BeautifulSoup
+
+url = input('Enter url: ')
+urlhand = urllib.request.urlopen(url)
+soup = BeautifulSoup(urlhand, 'html.parser')
+tags = soup('a')
+count = 0
+for tag in tags:
+    count += 1
+    print(tag.get('href', None))
+print('Total # of tags:', count)
+quit()
+# http://data.pr4e.org
+
+
 
 # Using RE to find links 'href:..'
 # Prints out the links available on a url
@@ -234,10 +236,21 @@ print(len(count))
 quit()
 
 
-import urllib.request
-fhand = urllib.request.urlopen('http://data.pr4e.org/romeo.txt')
+# video lectures part 2
+
+# reading a page from the web like a file/handle
+import urllib.request, urllib.parse, urllib.error
+url = input('Enter url: ')
+fhand = urllib.request.urlopen(url)
+print(fhand)
 for line in fhand:
     print(line.decode().strip())
+quit()
+# http://data.pr4e.org/romeo.txt  http://dr-chuck.com/page1.htm
+
+
+# finding ASCII value for a string character
+print(ord('\n'))
 quit()
 
 

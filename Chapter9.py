@@ -100,6 +100,28 @@ except:
 quit()
 
 
+# Program that adds words/frequency pairing to a dictionary, then provides the highest frequency word
+try:
+    file = input('Enter file name: ')
+    handle = open(file)
+    count = dict()
+
+    max_count = 0
+    max_word = None
+    for line in handle:
+        words = line.split()
+        for word in words:
+            count[word] = count.get(word, 0) + 1
+            # print('hello')
+            if count[word] > max_count:
+                max_count = count[word]
+                max_word = word
+    print(count)
+    print(max_word, ": ", max_count, sep="")
+except:
+    print('Invalid file or file could not be parsed:', file)
+quit()
+
 
 # 8.1 exercise
 name = input('Enter file name: ')
